@@ -1,0 +1,130 @@
+#!/bin/bash
+
+#
+# Verify development environment setup
+#
+
+set -euo pipefail
+
+echo "🔍 Verifying development environment setup..."
+
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+success_count=0
+total_checks=0
+
+check_command() {
+    local cmd="$1"
+    local description="$2"
+    total_checks=$((total_checks + 1))
+    
+    if command -v "$cmd" >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ $description${NC}"
+        success_count=$((success_count + 1))
+    else
+        echo -e "${RED}❌ $description - $cmd not found${NC}"
+    fi
+}
+
+check_path() {
+    local path="$1"
+    local description="$2"
+    total_checks=$((total_checks + 1))
+    
+    if [[ -e "$path" ]]; then
+        echo -e "${GREEN}✅ $description${NC}"
+        success_count=$((success_count + 1))
+    else
+        echo -e "${RED}❌ $description - $path not found${NC}"
+    fi
+}
+
+echo ""
+echo "📦 Core Development Tools:"
+check_command "brew" "Homebrew package manager"
+check_command "git" "Git version control"
+check_command "python3" "Python 3"
+check_command "asdf" "ASDF version manager"
+
+echo ""
+echo "☁️ Cloud & DevOps Tools:"
+check_command "aws" "AWS CLI"
+check_command "aws-vault" "AWS Vault"
+check_command "kubectl" "Kubernetes CLI"
+check_command "helm" "Helm package manager"
+check_command "docker" "Docker"
+
+echo ""
+echo "🛠️ Command Line Utilities:"
+check_command "jq" "JSON processor"
+check_command "htop" "System monitor"
+check_command "tmux" "Terminal multiplexer"
+check_command "fd" "Modern find replacement"
+check_command "exa" "Modern ls replacement"
+
+echo ""
+echo "🐚 Shell Environment:"
+check_command "zsh" "Zsh shell"
+check_path "$HOME/.zsh" "Zsh configuration directory"
+check_path "$HOME/.p10k.zsh" "Powerlevel10k configuration"
+
+echo ""
+echo "🎯 GUI Applications:"
+check_path "/Applications/Visual Studio Code.app" "Visual Studio Code"
+check_path "/Applications/Docker.app" "Docker Desktop"
+
+if [[ -f "$HOME/.local/share/zinit/zinit.git/zinit.zsh" ]]; then
+    echo -e "${GREEN}✅ Zinit plugin manager${NC}"
+    success_count=$((success_count + 1))
+else
+    echo -e "${RED}❌ Zinit plugin manager${NC}"
+fi
+total_checks=$((total_checks + 1))
+
+# Check Brewfile status
+echo ""
+echo "📦 Homebrew Bundle Status:"
+if command -v brew >/dev/null 2>&1; then
+    cd "$HOME/.local/share/chezmoi" 2>/dev/null || cd "$PWD"
+    if [[ -f "Brewfile" ]]; then
+        echo -e "${GREEN}✅ Brewfile found${NC}"
+        brew bundle check --verbose 2>/dev/null && echo -e "${GREEN}✅ All Brewfile packages installed${NC}" || echo -e "${YELLOW}⚠️  Some Brewfile packages missing${NC}"
+        success_count=$((success_count + 1))
+    else
+        echo -e "${RED}❌ Brewfile not found${NC}"
+    fi
+    total_checks=$((total_checks + 1))
+fi
+
+echo ""
+echo "📊 Verification Summary:"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+if [[ $success_count -eq $total_checks ]]; then
+    echo -e "${GREEN}🎉 All checks passed! ($success_count/$total_checks)${NC}"
+    echo -e "${GREEN}Your development environment is ready to use!${NC}"
+elif [[ $success_count -gt $((total_checks * 3 / 4)) ]]; then
+    echo -e "${YELLOW}⚠️  Most checks passed ($success_count/$total_checks)${NC}"
+    echo -e "${YELLOW}Your environment is mostly ready, but some optional tools are missing.${NC}"
+else
+    echo -e "${RED}❌ Several checks failed ($success_count/$total_checks)${NC}"
+    echo -e "${RED}Please review the failed items and reinstall if necessary.${NC}"
+fi
+
+echo ""
+echo "💡 Next steps:"
+echo "   • Restart your terminal or run: source ~/.zshrc"
+echo "   • Configure your applications (VS Code, Git, etc.)"
+echo "   • Run 'chezmoi doctor' to check for any chezmoi issues"
+
+echo ""
+echo "🔧 Troubleshooting:"
+echo "   • If commands are not found, check your PATH with: echo \$PATH"
+echo "   • For missing packages, run: brew bundle install"
+echo "   • To check what's missing: brew bundle check --verbose"
+echo "   • Run 'brew doctor' to diagnose Homebrew issues"
+echo "   • For GUI apps, check Applications folder or reinstall with: brew bundle install --force"
