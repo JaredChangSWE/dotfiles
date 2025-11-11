@@ -20,5 +20,5 @@ fi
 
 echo ""
 echo "💡 Next steps:"
-echo "   • Taps and packages will be configured via Brewfile"
-echo "   • Run 'brew bundle install' to install all packages"
+echo "   • Taps and packages will be configured via Brewfile.darwin"
+echo "   • Run 'brew bundle install --file Brewfile.darwin' to install all packages"

@@ -9,16 +9,18 @@ set -euo pipefail
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-echo "📦 Brewfile has changed - updating packages..."
+BREWFILE_PATH="{{ .chezmoi.sourceDir }}/Brewfile.darwin"
+
+echo "📦 Brewfile.darwin has changed - updating packages..."
 
 # Change to the chezmoi source directory
 cd "{{ .chezmoi.sourceDir }}"
 
 # Install all packages using brew bundle
-if brew bundle --verbose; then
-    echo "✅ Brewfile update completed successfully!"
+if brew bundle --verbose --file "$BREWFILE_PATH"; then
+    echo "✅ Brewfile.darwin update completed successfully!"
 else
     echo "❌ Some packages failed to install/update. Check the output above."
 fi
 
-echo "🎉 Brewfile update completed!"
+echo "🎉 Brewfile.darwin update completed!"

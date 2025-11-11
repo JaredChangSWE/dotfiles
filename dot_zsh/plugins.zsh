@@ -29,9 +29,22 @@ zinit ice lucid wait='0'
 zinit light zsh-users/zsh-completions
 
 # Completions
-zinit ice lucid wait="0" atload='eval "$(aws-vault --completion-script-zsh)" cache'
-zinit ice lucid wait="0" atload='complete -C "/opt/homebrew/bin/aws_completer" aws cache'
-zinit ice lucid wait="0" atload='source <(kubectl completion zsh) cache'
+if command -v aws-vault >/dev/null 2>&1; then
+    eval "$(aws-vault --completion-script-zsh)"
+fi
+
+if command -v aws_completer >/dev/null 2>&1; then
+    if [[ -z "${BASH_COMPLETION_INITIALIZED:-}" ]]; then
+        autoload -Uz bashcompinit 2>/dev/null
+        bashcompinit
+        BASH_COMPLETION_INITIALIZED=1
+    fi
+    complete -C "$(command -v aws_completer)" aws
+fi
+
+if command -v kubectl >/dev/null 2>&1; then
+    source <(kubectl completion zsh)
+fi
 
 # Oh My Zsh snippets
 zinit snippet OMZ::lib/completion.zsh

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a **chezmoi-managed dotfiles repository** for macOS development environment setup. It uses [chezmoi](https://chezmoi.io/) to manage and version control dotfiles, system configuration, and automated tool installation optimized specifically for Mac systems.
+This is a **chezmoi-managed dotfiles repository** for macOS and Linux development environment setup. It uses [chezmoi](https://chezmoi.io/) to manage and version control dotfiles, system configuration, and automated tool installation optimized for Apple Silicon/Intel Macs and Debian/Ubuntu-based systems.
 
 ## Key Commands
 
@@ -62,7 +62,7 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply username
 #### Zsh Environment (`dot_zsh/`)
 - **Modular Structure**: Split into organized files for maintainability
 - **Loading Order**: Optimized for proper plugin initialization
-  1. `path.zsh.tmpl`: PATH setup with Homebrew and development tools
+  1. `path.zsh.darwin.tmpl` / `path.zsh.linux.tmpl`: PATH setup tuned per OS (Homebrew paths vs Linux paths)
   2. `plugins.zsh`: Zinit plugin manager and plugin loading (loads first to install tools like zoxide)
   3. `env.zsh`: Environment initialization, key bindings, and tool initialization (including zoxide)
   4. `aliases.zsh`: Command aliases (Git, Docker, Kubernetes, AWS)
@@ -70,20 +70,18 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply username
 
 #### Installation Pipeline (`scripts/`)
 - **Organized Scripts**: Clear naming and execution order with smart detection
-  - `run_once_before_00-setup-xcode.sh`: Xcode Command Line Tools installation
-  - `run_once_before_01-install-homebrew.sh`: Homebrew installation (checks if already installed)
-  - `run_once_before_02-install-development-tools.sh.tmpl`: Package installation via `brew bundle` + AWS Session Manager
-  - `run_once_after_00-setup-shell.sh`: Shell environment setup
-  - `run_once_after_99-verify-setup.sh`: Comprehensive installation verification with colored output
+  - macOS: `run_once_before_00-setup-xcode.darwin.sh`, `run_once_before_01-install-homebrew.darwin.sh`, `run_once_before_02-install-development-tools.sh.darwin.tmpl`
+  - Linux: `run_once_before_01-install-linux-base-packages.linux.sh`, `run_once_before_02-install-development-tools.linux.sh`
+  - Post-install: `run_once_after_00-setup-shell.{darwin,linux}.sh`, `run_once_after_99-verify-setup.{darwin,linux}.sh`
 - **Smart Detection**: Scripts check for existing installations to avoid redundant operations
 
 #### Package Management
-- **Brewfile**: Uses `Brewfile` for declarative package management (no longer templated)
+- **macOS Brewfile**: `Brewfile.darwin` drives declarative package management
   - Optimized for macOS with Homebrew and cask applications
-  - Organized by categories: CLI tools, GUI apps, productivity applications
-  - Supports `brew bundle` commands for efficient installation
+  - Supports `brew bundle` commands for efficient installation with `--file Brewfile.darwin`
   - Includes development tools (VS Code, JetBrains), productivity apps (1Password, Alfred), and system utilities
   - Special handling for AWS Session Manager plugin installation outside of Homebrew
+- **Linux Scripts**: apt-based automation lives in `run_once_before_01-install-linux-base-packages.linux.sh` and `run_once_before_02-install-development-tools.linux.sh`, covering CLI packages, kubectl/helm repos, Docker group membership, aws-vault, eza, and the AWS Session Manager plugin
 
 #### Plugin Management (Zinit)
 - **Performance-Oriented**: Lazy-loading plugins with `lucid wait='0'`
@@ -119,17 +117,20 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply username
 ## Common Workflows
 
 ### Adding New Tools
-1. **Homebrew Packages**: Add to `Brewfile`
+1. **macOS Homebrew Packages**: Add to `Brewfile.darwin`
    - CLI tools: `brew "package-name"`
-   - GUI applications: `cask "app-name"` (macOS only)
+   - GUI applications: `cask "app-name"`
    - No templating needed for simple package additions
-2. **Shell Integration**: Add aliases/functions to appropriate `dot_zsh/` files
+2. **Linux Packages**: Extend `scripts/run_once_before_02-install-development-tools.linux.sh`
+   - Add apt packages to the install list
+   - Add custom install functions for binaries fetched from releases if needed
+3. **Shell Integration**: Add aliases/functions to appropriate `dot_zsh/` files
    - Aliases: Add to `dot_zsh/aliases.zsh`
    - Functions: Add to `dot_zsh/functions.zsh`
-   - PATH modifications: Add to `dot_zsh/path.zsh.tmpl` (uses templating)
-3. **Install & Verify**: 
-   - Run `brew bundle install` to install new packages
-   - Use `brew bundle check` to verify installation
+   - PATH modifications: Add to the OS-specific `dot_zsh/path.zsh.{darwin,linux}.tmpl`
+4. **Install & Verify**: 
+   - macOS: Run `brew bundle install --file Brewfile.darwin` / `brew bundle check --file Brewfile.darwin`
+   - Linux: Re-run the apt automation script via `chezmoi apply` or execute it manually
    - Add completions to `dot_zsh/plugins.zsh` if needed
 
 ### Modifying Dotfiles
@@ -139,13 +140,10 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply username
 4. Apply with `chezmoi apply`
 
 ### Platform Considerations
-- **Target Platform**: macOS (Apple Silicon and Intel)
-- **Homebrew Integration**: Uses `/opt/homebrew` path (modern Homebrew installation)
-- **macOS-Specific Features**: 
-  - Warp terminal integration
-  - AWS Vault keychain setup
-  - 1Password SSH signing
-  - macOS-native applications and utilities
+- **macOS**: Apple Silicon and Intel via Homebrew (`/opt/homebrew`) and Brewfile.darwin
+- **Linux**: Debian/Ubuntu via apt scripts (handles kubectl/helm repos, Docker, aws-vault, eza, Session Manager plugin)
+- **macOS-Specific Features**: Warp integration, AWS Vault keychain setup, 1Password SSH signing, macOS-native apps
+- **Linux-Specific Notes**: Adds Docker group membership, xclip clipboard alias, Brave replaced with `xdg-open` for aws-vault login helper
 
 ## Security Features
 - **Git Signing**: Configured for SSH signing via 1Password
@@ -155,51 +153,57 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply username
 ## Testing and Verification
 - Always test dotfile changes in a new shell session
 - Use `chezmoi diff` to preview changes before applying
-- Run `scripts/run_once_after_99-verify-setup.sh` to verify installation
+- Run `scripts/run_once_after_99-verify-setup.{darwin,linux}.sh` to verify installation
 - Keep backups of critical configurations before major updates
 - Test installation scripts in isolated environments when possible
 
 ## Repository Structure
 ```
 ~/.local/share/chezmoi/
-├── Brewfile                                # Homebrew package definitions (no longer templated)
+├── Brewfile.darwin                         # Homebrew package definitions (macOS)
 ├── CLAUDE.md                               # AI assistant guidance
 ├── README.md                               # User documentation
 ├── dot_gitconfig.tmpl                      # Git configuration template
 ├── dot_gitalias                            # Git aliases from GitAlias.com
-├── dot_gitignore                           # Global gitignore (Brewfile.lock.json, .DS_Store, etc.)
+├── dot_gitignore                           # Global gitignore (Brewfile lock files, .DS_Store, etc.)
 ├── dot_zshrc                               # Zsh main configuration with optimized loading order
 ├── dot_zsh/                                # Modular zsh configuration
-│   ├── path.zsh.tmpl                       # PATH setup for macOS (templated)
+│   ├── path.zsh.darwin.tmpl                # PATH setup for macOS
+│   ├── path.zsh.linux.tmpl                 # PATH setup for Linux
 │   ├── plugins.zsh                         # Zinit plugin manager (loads first)
 │   ├── env.zsh                             # Environment initialization and tool setup
 │   ├── aliases.zsh                         # Command aliases (Git, Docker, K8s, AWS)
 │   └── functions.zsh                       # Custom shell functions
 └── scripts/                                # Installation scripts with smart detection
-    ├── run_once_before_00-setup-xcode.sh   # Xcode Command Line Tools
-    ├── run_once_before_01-install-homebrew.sh # Homebrew (with existing installation check)
-    ├── run_once_before_02-install-development-tools.sh.tmpl # Brewfile + AWS Session Manager
-    ├── run_once_after_00-setup-shell.sh    # Shell environment setup
-    └── run_once_after_99-verify-setup.sh   # Comprehensive verification with colored output
+    ├── modify_Brewfile.sh.darwin.tmpl      # Watches Brewfile.darwin changes
+    ├── run_once_before_00-setup-xcode.darwin.sh
+    ├── run_once_before_01-install-homebrew.darwin.sh
+    ├── run_once_before_01-install-linux-base-packages.linux.sh
+    ├── run_once_before_02-install-development-tools.sh.darwin.tmpl
+    ├── run_once_before_02-install-development-tools.linux.sh
+    ├── run_once_after_00-setup-shell.darwin.sh
+    ├── run_once_after_00-setup-shell.linux.sh
+    ├── run_once_after_99-verify-setup.darwin.sh
+    └── run_once_after_99-verify-setup.linux.sh
 
 # Configuration (not in repository)
 ~/.config/chezmoi/chezmoi.toml              # User data (email, name, SSH key)
 ```
 
-## Brewfile Commands
+## Brewfile.darwin Commands
 ```bash
-# Install all packages from Brewfile
-brew bundle install
+# Install all packages from Brewfile.darwin
+brew bundle install --file Brewfile.darwin
 
 # Check if all packages are installed
-brew bundle check --verbose
+brew bundle check --verbose --file Brewfile.darwin
 
-# Update Brewfile with currently installed packages
-brew bundle dump --force
+# Update Brewfile.darwin with currently installed packages
+brew bundle dump --file Brewfile.darwin --force
 
-# Clean up packages not in Brewfile
-brew bundle cleanup --force
+# Clean up packages not in Brewfile.darwin
+brew bundle cleanup --force --file Brewfile.darwin
 
 # Install only specific categories
-brew bundle install --file=Brewfile
+brew bundle install --file Brewfile.darwin --only=casks
 ```

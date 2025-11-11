@@ -107,11 +107,19 @@ aws_set_credential() {
   export AWS_SESSION_TOKEN=$(echo $credential | jq -r .Credentials.SessionToken)
 }
 
+{{ if eq .chezmoi.os "darwin" }}
 avl() {
   data_dir="/tmp/chrome.aws.$1"
-  mkdir -p $data_dir
-  aws-vault login -s $1 | xargs /Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --args --lang="en_us" --no-first-run --new-window --disk-cache=$data_dir --user-data-dir=$data_dir --enable-chrome-browser-cloud-management
+  mkdir -p "$data_dir"
+  aws-vault login -s "$1" | xargs /Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --args --lang="en_us" --no-first-run --new-window --disk-cache="$data_dir" --user-data-dir="$data_dir" --enable-chrome-browser-cloud-management
 }
+{{ else }}
+avl() {
+  data_dir="/tmp/chrome.aws.$1"
+  mkdir -p "$data_dir"
+  aws-vault login -s "$1" | xargs -I{} xdg-open "{}"
+}
+{{ end }}
 
 # Utility functions
 compress() {

@@ -1,8 +1,14 @@
+if command -v eza >/dev/null 2>&1; then
+  alias ls="eza"
+elif command -v exa >/dev/null 2>&1; then
+  alias ls="exa"
+else
+  alias ls="ls --color=auto"
+fi
+
 alias l="ls -lA"
 alias g="git"
 alias lg="l | grep -i"
-alias blg="brew list | grep -i"
-alias c="pbcopy"
 alias k="kubectl"
 alias kcp="connect_to_first_pod_by_name"
 alias dbt="docker build -t"
@@ -16,5 +22,15 @@ alias uav="unset AWS_VAULT"
 alias dc="docker compose"
 alias dcud="docker compose up -d"
 alias dcd="docker compose down"
+alias dre="dcd && dcud --build"
 alias awslocal="aws --profile=local --endpoint-url=http://localhost:4566"
 alias cm="chezmoi"
+alias cuu="npx ccusage@latest"
+
+{{ if eq .chezmoi.os "darwin" }}
+alias blg="brew list | grep -i"
+alias c="pbcopy"
+{{ else }}
+alias blg="apt list --installed | grep -i"
+alias c="xclip -selection clipboard"
+{{ end }}

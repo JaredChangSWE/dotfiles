@@ -90,12 +90,12 @@ echo ""
 echo "📦 Homebrew Bundle Status:"
 if command -v brew >/dev/null 2>&1; then
     cd "$HOME/.local/share/chezmoi" 2>/dev/null || cd "$PWD"
-    if [[ -f "Brewfile" ]]; then
-        echo -e "${GREEN}✅ Brewfile found${NC}"
-        brew bundle check --verbose 2>/dev/null && echo -e "${GREEN}✅ All Brewfile packages installed${NC}" || echo -e "${YELLOW}⚠️  Some Brewfile packages missing${NC}"
+    if [[ -f "Brewfile.darwin" ]]; then
+        echo -e "${GREEN}✅ Brewfile.darwin found${NC}"
+        brew bundle check --verbose --file Brewfile.darwin 2>/dev/null && echo -e "${GREEN}✅ All Brewfile packages installed${NC}" || echo -e "${YELLOW}⚠️  Some Brewfile packages missing${NC}"
         success_count=$((success_count + 1))
     else
-        echo -e "${RED}❌ Brewfile not found${NC}"
+        echo -e "${RED}❌ Brewfile.darwin not found${NC}"
     fi
     total_checks=$((total_checks + 1))
 fi

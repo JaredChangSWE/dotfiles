@@ -11,9 +11,9 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 echo "🔧 Setting up development environment..."
 
 # Initial Brewfile installation
-echo "📦 Initial installation from Brewfile..."
+echo "📦 Initial installation from Brewfile.darwin..."
 cd "{{ .chezmoi.sourceDir }}"
-if brew bundle --verbose; then
+if brew bundle --verbose --file Brewfile.darwin; then
     echo "✅ Initial Brewfile installation completed!"
 else
     echo "❌ Some packages failed to install. Continuing with setup..."
@@ -44,4 +44,4 @@ echo "💡 Next steps:"
 echo "   • Restart your terminal to ensure all PATH changes take effect"
 echo "   • Run the verification script to check the installation"
 echo "   • Configure your newly installed applications"
-echo "   • Future Brewfile changes will be handled automatically by modify_Brewfile.sh"
+echo "   • Future Brewfile.darwin changes will be handled automatically by modify_Brewfile.sh"
