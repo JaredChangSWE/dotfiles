@@ -32,7 +32,7 @@ call plug#end()
 " ----------------------------------------------------------------------------
 "  General settings
 " ----------------------------------------------------------------------------
-let mapleader = " "
+let mapleader = "\"
 
 set number
 set relativenumber
@@ -68,7 +68,8 @@ nmap <leader><leader>f <Plug>(easymotion-bd-f)
 vmap <leader><leader>f <Plug>(easymotion-bd-f)
 nmap <leader><leader>j <Plug>(easymotion-j)
 nmap <leader><leader>k <Plug>(easymotion-k)
-nmap <Leader><Leader>s <Plug>(easymotion-s)
+nmap <leader><leader>s <Plug>(easymotion-s)
+nmap <space> <Plug>(easymotion-s)
 
 " GitGutter refresh quicker
 let g:gitgutter_realtime = 1
