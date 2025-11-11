@@ -1,0 +1,112 @@
+" ============================================================================
+"  Jared's cross-platform Vim configuration
+" ============================================================================
+
+if &compatible
+  set nocompatible
+endif
+
+scriptencoding utf-8
+set encoding=utf-8
+
+" ----------------------------------------------------------------------------
+"  Plugin manager bootstrap (vim-plug)
+" ----------------------------------------------------------------------------
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent execute '!curl -fLo ~/.vim/autoload/plug.vim --create-dirs ' .
+        \ 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * ++once PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.vim/plugged')
+  " Sensible defaults and helpers
+  Plug 'tpope/vim-sensible'
+  Plug 'tpope/vim-commentary'
+  Plug 'jiangmiao/auto-pairs'
+  Plug 'airblade/vim-gitgutter'
+
+  " Navigation extensions
+  Plug 'easymotion/vim-easymotion'
+call plug#end()
+
+" ----------------------------------------------------------------------------
+"  General settings
+" ----------------------------------------------------------------------------
+let mapleader = " "
+
+set number
+set relativenumber
+set hidden
+set mouse=a
+set cursorline
+set nowrap
+set signcolumn=yes
+set splitbelow
+set splitright
+set updatetime=300
+set clipboard=unnamedplus
+set undofile
+set undodir=~/.vim/undo//
+set termguicolors
+
+if has('persistent_undo') && !isdirectory(expand(&undodir))
+  call mkdir(expand(&undodir), 'p', 0700)
+endif
+
+" Use ripgrep for :grep if available
+if executable('rg')
+  set grepprg=rg\ --vimgrep\ --hidden\ --smart-case
+  set grepformat=%f:%l:%c:%m
+endif
+
+" ----------------------------------------------------------------------------
+"  Plugin configuration
+" ----------------------------------------------------------------------------
+" EasyMotion key mappings
+nmap <leader><leader>w <Plug>(easymotion-w)
+nmap <leader><leader>f <Plug>(easymotion-bd-f)
+vmap <leader><leader>f <Plug>(easymotion-bd-f)
+nmap <leader><leader>j <Plug>(easymotion-j)
+nmap <leader><leader>k <Plug>(easymotion-k)
+nmap <Leader><Leader>s <Plug>(easymotion-s)
+
+" GitGutter refresh quicker
+let g:gitgutter_realtime = 1
+let g:gitgutter_enabled = 1
+
+" AutoPairs tweaks
+let g:AutoPairsMapSpace = 0
+
+" Keep search matches centered
+nnoremap n nzzzv
+nnoremap N Nzzzv
+
+" Quickly clear search highlights
+nnoremap <leader><space> :nohlsearch<CR>
+
+" Faster saving/quitting
+nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+
+" ----------------------------------------------------------------------------
+"  OS specific niceties
+" ----------------------------------------------------------------------------
+if has('macunix')
+  let g:clipboard = {
+        \ 'name': 'pbcopy',
+        \ 'copy': {
+        \    '+': 'pbcopy',
+        \    '*': 'pbcopy',
+        \  },
+        \ 'paste': {
+        \    '+': 'pbpaste',
+        \    '*': 'pbpaste',
+        \  },
+        \ 'cache_enabled': 0,
+        \ }
+endif
+
+" ----------------------------------------------------------------------------
+"  Convenience commands
+" ----------------------------------------------------------------------------
+command! -nargs=0 TrimTrailing :%s/\s\+$//e

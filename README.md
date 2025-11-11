@@ -61,6 +61,7 @@ chezmoi add ~/.newfile
 ├── dot_gitignore                         # Global gitignore (Brewfile lock files, .DS_Store, etc.)
 ├── dot_zshrc                             # Zsh startup file with optimized loading order
 ├── dot_gitalias                          # Git aliases from GitAlias.com
+├── dot_vimrc                             # Cross-platform Vim configuration with vim-plug
 ├── dot_zsh/                              # Zsh configuration modules
 │   ├── path.zsh.darwin.tmpl              # PATH setup for macOS
 │   ├── path.zsh.linux.tmpl               # PATH setup for Linux
@@ -111,6 +112,14 @@ This file is not tracked in the repository to keep your sensitive information se
   - `dot_zsh/env.zsh`: Environment initialization and key bindings
   - `dot_zsh/path.zsh.darwin.tmpl` / `dot_zsh/path.zsh.linux.tmpl`: PATH setup per platform (Homebrew vs. Linux paths)
 - **Loading Order**: Optimized for proper plugin initialization (plugins → env → aliases → functions)
+
+#### Vim Configuration
+
+- **File**: `dot_vimrc` managed via chezmoi and sourced automatically by Vim
+- **Plugin Manager**: Bootstraps [vim-plug](https://github.com/junegunn/vim-plug) on first launch (works on macOS & Linux)
+- **Navigation Plugins**: Installs `easymotion/vim-easymotion` and `vim-scripts/ace_jump.vim` to provide EasyMotion / AceJump workflows
+- **Quality-of-life Plugins**: Includes commentary, autopairs, gitgutter, and sensible defaults for indentation, clipboard, splits, and searching
+- **Keymaps**: Leader-based shortcuts for EasyMotion (`<leader><leader>w/f/j/k`) and AceJump (`<leader>a`, `<leader>A`) shared across OSes
 
 #### Development Tools
 

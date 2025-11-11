@@ -22,6 +22,7 @@ sudo apt-get install -y \
     htop \
     btop \
     jq \
+    vim \
     python-is-python3 \
     ripgrep \
     tmux \
@@ -51,7 +52,7 @@ install_eza() {
     sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
     sudo apt update
     sudo apt install -y eza
-    
+
     echo "✅ Installed eza from the latest GitHub release."
 }
 
