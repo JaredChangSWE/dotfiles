@@ -1,0 +1,9 @@
+[data]
+
+    email = {{- promptStringOnce . "email" "Enter your email address for git" "" | quote }}
+    
+    name = {{- promptStringOnce . "name" "Enter your name for git" "" | quote }}
+    
+    cloudtop = {{- promptStringOnce . "cloudtop" "Enter your cloudtop url" "" | quote }}
+    
+    google = true
