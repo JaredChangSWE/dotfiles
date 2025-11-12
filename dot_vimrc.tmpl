@@ -20,6 +20,7 @@ call plug#begin('~/.vim/plugged')
   Plug 'tpope/vim-commentary'
   Plug 'jiangmiao/auto-pairs'
   Plug 'airblade/vim-gitgutter'
+  Plug 'tomasiser/vim-code-dark'        " VS Code Dark+ colorscheme
 
   " Navigation extensions
   Plug 'easymotion/vim-easymotion'
@@ -44,6 +45,7 @@ set clipboard=unnamedplus
 set undofile
 set undodir=~/.vim/undo//
 set termguicolors
+colorscheme codedark
 
 if has('persistent_undo') && !isdirectory(expand(&undodir))
   call mkdir(expand(&undodir), 'p', 0700)
