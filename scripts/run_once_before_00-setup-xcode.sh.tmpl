@@ -1,11 +1,12 @@
 #!/bin/bash
 
 #
-# Install Xcode Command Line Tools
+# No-op placeholder on Linux to keep numbering consistent
 #
 
 set -euo pipefail
 
+{{- if eq .chezmoi.os "darwin" }}
 if [[ -t 1 ]]
 then
   tty_escape() { printf "\033[%sm" "$1"; }
@@ -129,3 +130,8 @@ then
   read -n 1 -s
   execute_sudo "/usr/bin/xcode-select" "--switch" "/Library/Developer/CommandLineTools"
 fi
+{{- end }}
+
+{{- if eq .chezmoi.os "linux" }}
+echo "Skipping Xcode Command Line Tools setup on Linux."
+{{- end }}

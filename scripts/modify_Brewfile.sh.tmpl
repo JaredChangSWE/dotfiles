@@ -1,0 +1,29 @@
+#!/bin/bash
+
+#
+# Placeholder to keep hook numbering consistent on Linux
+#
+
+set -euo pipefail
+
+{{- if eq .chezmoi.os "darwin" }}
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+BREWFILE_PATH="{{ .chezmoi.sourceDir }}/Brewfile"
+
+echo "📦 Brewfile has changed - updating packages..."
+
+cd "{{ .chezmoi.sourceDir }}"
+
+if brew bundle --verbose --file "$BREWFILE_PATH"; then
+    echo "✅ Brewfile update completed successfully!"
+else
+    echo "❌ Some packages failed to install/update. Check the output above."
+fi
+
+echo "🎉 Brewfile update completed!"
+{{- end }}
+
+{{- if eq .chezmoi.os "linux" }}
+echo "Brewfile modify hook is macOS-specific. Nothing to do on Linux."
+{{- end }}

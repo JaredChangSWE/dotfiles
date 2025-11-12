@@ -1,6 +1,5 @@
 # Brewfile lock files (generated, don't track)
 Brewfile.lock.json
-Brewfile.darwin.lock.json
 
 # OS generated files
 .DS_Store

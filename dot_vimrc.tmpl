@@ -1,7 +1,3 @@
-" ============================================================================
-"  Jared's cross-platform Vim configuration
-" ============================================================================
-
 if &compatible
   set nocompatible
 endif
@@ -92,6 +88,7 @@ nnoremap <leader>q :q<CR>
 " ----------------------------------------------------------------------------
 "  OS specific niceties
 " ----------------------------------------------------------------------------
+{{- if eq .chezmoi.os "darwin" }}
 if has('macunix')
   let g:clipboard = {
         \ 'name': 'pbcopy',
@@ -106,6 +103,39 @@ if has('macunix')
         \ 'cache_enabled': 0,
         \ }
 endif
+{{- end }}
+
+{{- if eq .chezmoi.os "linux" }}
+if has('unix')
+  if executable('xclip')
+    let g:clipboard = {
+          \ 'name': 'xclip',
+          \ 'copy': {
+          \    '+': 'xclip -selection clipboard',
+          \    '*': 'xclip -selection primary',
+          \  },
+          \ 'paste': {
+          \    '+': 'xclip -selection clipboard -o',
+          \    '*': 'xclip -selection primary -o',
+          \  },
+          \ 'cache_enabled': 0,
+          \ }
+  elseif executable('wl-copy')
+    let g:clipboard = {
+          \ 'name': 'wl-clipboard',
+          \ 'copy': {
+          \    '+': 'wl-copy',
+          \    '*': 'wl-copy',
+          \  },
+          \ 'paste': {
+          \    '+': 'wl-paste --no-newline',
+          \    '*': 'wl-paste --primary --no-newline',
+          \  },
+          \ 'cache_enabled': 0,
+          \ }
+  endif
+endif
+{{- end }}
 
 " ----------------------------------------------------------------------------
 "  Convenience commands

@@ -56,30 +56,25 @@ chezmoi add ~/.newfile
 
 ```
 ~/.local/share/chezmoi/
-├── Brewfile.darwin                       # Homebrew package definitions (macOS only)
+├── Brewfile.tmpl                         # Homebrew package definitions (templated per OS)
 ├── dot_gitconfig.tmpl                    # Git configuration (templated)
 ├── dot_gitignore                         # Global gitignore (Brewfile lock files, .DS_Store, etc.)
 ├── dot_zshrc                             # Zsh startup file with optimized loading order
 ├── dot_gitalias                          # Git aliases from GitAlias.com
-├── dot_vimrc                             # Cross-platform Vim configuration with vim-plug
+├── dot_vimrc.tmpl                        # Cross-platform Vim configuration with vim-plug
 ├── dot_zsh/                              # Zsh configuration modules
-│   ├── path.zsh.darwin.tmpl              # PATH setup for macOS
-│   ├── path.zsh.linux.tmpl               # PATH setup for Linux
+│   ├── path.zsh.tmpl                     # PATH setup with OS templating
 │   ├── plugins.zsh                       # Zinit plugin manager (loads first)
-│   ├── env.zsh                           # Environment initialization (loads third)
+│   ├── env.zsh.tmpl                      # Environment initialization (loads third)
 │   ├── aliases.zsh                       # Command aliases (loads fourth)
 │   └── functions.zsh                     # Custom shell functions (loads last)
 ├── scripts/                              # Installation scripts with smart detection
-│   ├── modify_Brewfile.sh.darwin.tmpl    # Automatically apply Brewfile.darwin changes
-│   ├── run_once_before_00-setup-xcode.darwin.sh
-│   ├── run_once_before_01-install-homebrew.darwin.sh
-│   ├── run_once_before_01-install-linux-base-packages.linux.sh
-│   ├── run_once_before_02-install-development-tools.sh.darwin.tmpl
-│   ├── run_once_before_02-install-development-tools.linux.sh
-│   ├── run_once_after_00-setup-shell.darwin.sh
-│   ├── run_once_after_00-setup-shell.linux.sh
-│   ├── run_once_after_99-verify-setup.darwin.sh
-│   └── run_once_after_99-verify-setup.linux.sh
+│   ├── modify_Brewfile.sh.tmpl           # Automatically apply Brewfile changes (templated per OS)
+│   ├── run_once_before_00-setup-xcode.sh.tmpl
+│   ├── run_once_before_01-install-base-packages.sh.tmpl
+│   ├── run_once_before_02-install-development-tools.sh.tmpl
+│   ├── run_once_after_00-setup-shell.sh.tmpl
+│   └── run_once_after_99-verify-setup.sh.tmpl
 └── private_dot_ssh/                      # SSH configuration (templated per OS)
 
 # Configuration (not tracked)
@@ -109,8 +104,8 @@ This file is not tracked in the repository to keep your sensitive information se
   - `dot_zsh/aliases.zsh`: Git, Docker, Kubernetes, AWS shortcuts
   - `dot_zsh/functions.zsh`: Custom functions for proxy setup, AWS operations
   - `dot_zsh/plugins.zsh`: Zinit plugin manager with syntax highlighting, autosuggestions, zoxide
-  - `dot_zsh/env.zsh`: Environment initialization and key bindings
-  - `dot_zsh/path.zsh.darwin.tmpl` / `dot_zsh/path.zsh.linux.tmpl`: PATH setup per platform (Homebrew vs. Linux paths)
+  - `dot_zsh/env.zsh.tmpl`: Environment initialization and key bindings via templated OS sections
+  - `dot_zsh/path.zsh.tmpl`: PATH setup per platform (Homebrew vs. Linux paths) via templating
 - **Loading Order**: Optimized for proper plugin initialization (plugins → env → aliases → functions)
 
 #### Vim Configuration
@@ -129,8 +124,7 @@ This file is not tracked in the repository to keep your sensitive information se
 - **Languages**: Python, Node.js (via asdf)
 - **Directory Navigation**: zoxide (smart `z` command) - note: conflicts with zinit's `zi`, use `z` for navigation
 - **Package Automation**:
-  - macOS uses `Brewfile.darwin` + `scripts/run_once_before_02-install-development-tools.sh.darwin.tmpl`
-  - Linux uses apt-based scripts `run_once_before_01-install-linux-base-packages.linux.sh` and `run_once_before_02-install-development-tools.linux.sh`
+  - A single templated `Brewfile.tmpl` plus templated run-once scripts switch between macOS Homebrew installs and Linux apt-based provisioning (`scripts/run_once_before_01-install-base-packages.sh.tmpl`, `scripts/run_once_before_02-install-development-tools.sh.tmpl`)
 
 #### Productivity Apps
 
@@ -186,29 +180,29 @@ chezmoi apply
 
 ### Modifying Installation
 
-Edit `Brewfile.darwin` to add or remove macOS packages:
+Edit `Brewfile.tmpl` to add or remove macOS packages:
 
 ```bash
-chezmoi edit ~/.local/share/chezmoi/Brewfile.darwin
+chezmoi edit ~/.local/share/chezmoi/Brewfile.tmpl
 
 # Then install new packages
-brew bundle install --file Brewfile.darwin
+brew bundle install --file Brewfile
 ```
 
 For the development tools installation scripts:
 
 ```bash
 # macOS
-chezmoi edit ~/.local/share/chezmoi/scripts/run_once_before_02-install-development-tools.sh.darwin.tmpl
+chezmoi edit ~/.local/share/chezmoi/scripts/run_once_before_02-install-development-tools.sh.tmpl
 
 # Linux
-chezmoi edit ~/.local/share/chezmoi/scripts/run_once_before_02-install-development-tools.linux.sh
+chezmoi edit ~/.local/share/chezmoi/scripts/run_once_before_02-install-development-tools.sh.tmpl
 ```
 
 ## Platform Support
 
-- **macOS**: Apple Silicon and Intel Macs using Homebrew + Brewfile.darwin
-- **Linux**: Debian/Ubuntu-based distributions using apt automation scripts
+- **macOS**: Apple Silicon and Intel Macs using Homebrew + Brewfile templating
+- **Linux**: Debian/Ubuntu-based distributions using the templated apt automation scripts
 - **Optimized For**: Consistent Zsh experience across both platforms
 
 ## Commands Reference

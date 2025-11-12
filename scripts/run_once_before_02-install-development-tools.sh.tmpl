@@ -1,0 +1,105 @@
+#!/bin/bash
+
+#
+# One-time setup for development tools and special configurations (macOS)
+#
+
+set -euo pipefail
+
+echo "🔧 Setting up development environment..."
+
+{{- if eq .chezmoi.os "darwin" }}
+
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+echo "📦 Initial installation from Brewfile..."
+cd "{{ .chezmoi.sourceDir }}"
+if brew bundle --verbose --file Brewfile; then
+    echo "✅ Initial Brewfile installation completed!"
+else
+    echo "❌ Some packages failed to install. Continuing with setup..."
+fi
+
+echo "🔧 Setting up AWS Session Manager..."
+if ! command -v session-manager-plugin >/dev/null 2>&1; then
+    echo "Installing AWS Session Manager plugin..."
+    curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/mac/sessionmanager-bundle.zip" -o "sessionmanager-bundle.zip"
+    unzip sessionmanager-bundle.zip
+    sudo ./sessionmanager-bundle/install -i /usr/local/sessionmanagerplugin -b /usr/local/bin/session-manager-plugin
+    rm ./sessionmanager-bundle.zip
+    rm -rf ./sessionmanager-bundle
+    echo "✅ AWS Session Manager plugin installed"
+else
+    echo "✅ AWS Session Manager plugin already installed"
+fi
+
+echo "🔐 Configuring AWS Vault keychain..."
+security list-keychains -s `security list-keychains | xargs` ~/Library/Keychains/aws-vault.keychain-db 2>/dev/null || true
+security set-keychain-settings ~/Library/Keychains/aws-vault.keychain-db 2>/dev/null || true
+echo "✅ AWS Vault keychain configured"
+
+echo "🎉 Development tools setup completed!"
+echo ""
+echo "💡 Next steps:"
+echo "   • Restart your terminal to ensure all PATH changes take effect"
+echo "   • Run the verification script to check the installation"
+echo "   • Configure your newly installed applications"
+echo "   • Future Brewfile changes will be handled automatically by modify_Brewfile.sh"
+{{- end }}
+
+{{- if eq .chezmoi.os "linux" }}
+if ! command -v apt-get >/dev/null 2>&1; then
+    echo "apt-get was not found. Skipping tool installation."
+    exit 0
+fi
+
+echo "🔧 Setting up Linux development environment..."
+
+sudo apt-get update
+sudo apt-get install -y \
+    bat \
+    fd-find \
+    fzf \
+    git \
+    htop \
+    btop \
+    jq \
+    vim \
+    python-is-python3 \
+    ripgrep \
+    tmux \
+    unzip \
+    xclip \
+    zoxide \
+    zsh
+
+if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
+    sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
+fi
+
+if command -v batcat >/dev/null 2>&1 && ! command -v bat >/dev/null 2>&1; then
+    sudo ln -sf "$(command -v batcat)" /usr/local/bin/bat
+fi
+
+install_eza() {
+    if command -v eza >/dev/null 2>&1; then
+        return
+    fi
+
+    sudo mkdir -p /etc/apt/keyrings
+    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+    sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+    sudo apt update
+    sudo apt install -y eza
+
+    echo "✅ Installed eza from the latest GitHub release."
+}
+
+install_eza
+
+echo "🎉 Linux development tools installation completed!"
+echo ""
+echo "💡 Next steps:"
+echo "   • Verify tooling with scripts/run_once_after_99-verify-setup.sh"
+{{- end }}

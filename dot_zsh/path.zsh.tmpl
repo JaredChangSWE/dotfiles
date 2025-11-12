@@ -1,13 +1,12 @@
+{{- if eq .chezmoi.os "darwin" }}
 PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
 
-# Development tools PATH
 PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
 PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 
-# Android development
 ANDROID_HOME={{ .chezmoi.homeDir }}/Library/Android/sdk
 PATH=$PATH:$ANDROID_HOME/emulator
 PATH=$PATH:$ANDROID_HOME/platform-tools
+{{- end }}
 
-# Local binaries
-PATH=$PATH:{{ .chezmoi.homeDir }}/.local/bin
+PATH="$HOME/.local/bin:$PATH"
