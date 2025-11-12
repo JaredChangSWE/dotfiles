@@ -8,7 +8,7 @@ set -euo pipefail
 
 echo "🔧 Setting up development environment..."
 
-{{- if eq .chezmoi.os "darwin" }}
+{{- if and (eq .chezmoi.os "darwin") (not .google) }}
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
