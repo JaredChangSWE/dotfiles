@@ -34,3 +34,7 @@ alias c="pbcopy"
 alias blg="apt list --installed | grep -i"
 alias c="xclip -selection clipboard"
 {{ end }}
+
+{{ if .google }}
+alias s="ssh c"
+{{ end }}
