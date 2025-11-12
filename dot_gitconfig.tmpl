@@ -1,7 +1,17 @@
 [user]
         email = {{ .email }}
         name = {{ .name }}
+{{- if and (eq .chezmoi.os "darwin") (not .google) }}
         signingkey = {{ .signing_key }}
+{{- end }}
+
+[push]
+    autoSetupRemote = true
+
+[include]
+        path = ~/.gitalias
+
+{{- if and (eq .chezmoi.os "darwin") (not .google) }}
 
 [merge]
     tool = vscode
@@ -14,12 +24,6 @@
     prompt = false
 [difftool "vscode"]
     cmd = code --wait --diff $LOCAL $REMOTE
-
-[push]
-    autoSetupRemote = true
-
-[include]
-        path = ~/.gitalias
 
 [credential]
         helper = store
@@ -35,3 +39,4 @@
         program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
 [commit]
         gpgsign = true
+{{- end }}

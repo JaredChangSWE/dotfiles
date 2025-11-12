@@ -28,6 +28,7 @@ zinit light zsh-users/zsh-autosuggestions
 zinit ice lucid wait='0'
 zinit light zsh-users/zsh-completions
 
+{{- if and (eq .chezmoi.os "darwin") (not .google) }}
 # Completions
 if command -v aws-vault >/dev/null 2>&1; then
     eval "$(aws-vault --completion-script-zsh)"
@@ -45,13 +46,17 @@ fi
 if command -v kubectl >/dev/null 2>&1; then
     source <(kubectl completion zsh)
 fi
+{{- end }}
 
 # Oh My Zsh snippets
 zinit snippet OMZ::lib/completion.zsh
 zinit snippet OMZ::lib/history.zsh
 zinit snippet OMZ::plugins/command-not-found/command-not-found.plugin.zsh
+
+{{- if and (eq .chezmoi.os "darwin") (not .google) }}
 zinit snippet OMZ::plugins/aws
 zinit snippet OMZ::plugins/asdf
+{{- end }}
 
 # Additional plugins
 zinit ice lucid wait='0'
