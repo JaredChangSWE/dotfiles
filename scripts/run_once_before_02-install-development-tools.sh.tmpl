@@ -8,10 +8,31 @@ set -euo pipefail
 
 echo "🔧 Setting up development environment..."
 
-{{- if and (eq .chezmoi.os "darwin") (not .google) }}
+{{- if eq .chezmoi.os "darwin"}}
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
+{{- if .google }}
+brew install eza
+brew install fzf
+brew install chezmoi
+brew install fd
+brew install jq
+brew install rectangle
+brew install obsidian
+brew install todoist-ap
+brew install visual-studio-code
+brew install miro
+brew install google-driv
+brew install cleanshot
+brew install alfred
+brew tap 1password/tap
+brew install 1password
+brew install vim
+brew install tmux
+{{- end }}
+
+{{- if not .google }}
 echo "📦 Initial installation from Brewfile..."
 cd "{{ .chezmoi.sourceDir }}"
 if brew bundle --verbose --file Brewfile; then
@@ -37,6 +58,7 @@ echo "🔐 Configuring AWS Vault keychain..."
 security list-keychains -s `security list-keychains | xargs` ~/Library/Keychains/aws-vault.keychain-db 2>/dev/null || true
 security set-keychain-settings ~/Library/Keychains/aws-vault.keychain-db 2>/dev/null || true
 echo "✅ AWS Vault keychain configured"
+{{- end }}
 
 echo "🎉 Development tools setup completed!"
 echo ""

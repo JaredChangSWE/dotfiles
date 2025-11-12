@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-{{- if eq .chezmoi.os "darwin" }}
+{{- if and (eq .chezmoi.os "darwin") (not .google) }}
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 BREWFILE_PATH="{{ .chezmoi.sourceDir }}/Brewfile"
