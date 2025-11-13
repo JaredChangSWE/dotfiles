@@ -21,15 +21,15 @@ brew install jq
 brew install rectangle
 brew install obsidian
 brew install todoist-app
-brew install visual-studio-code
 brew install miro
-brew install google-driv
+brew install google-drive
 brew install cleanshot
 brew install alfred
 brew tap 1password/tap
 brew install 1password
 brew install vim
-brew install tmux
+sudo mule install tmux
+sudo mule install visual-studio-code
 sudo mule install roadwarrior
 {{- end }}
 
@@ -94,7 +94,8 @@ sudo apt-get install -y \
     unzip \
     xclip \
     zoxide \
-    zsh
+    zsh \
+    roadwarrior
 
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
     sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
